@@ -587,10 +587,15 @@ function init_from_config () {
 						var shape_data 	= svg_config.shapes.paths[ index ];
 						var shape_key 	= shape_data.key;
 						var shape_name 	= shape_data.name;
+						var shape_is_default 	= false;
+						if ( shape_data.default !== undefined ) {
+							shape_is_default = shape_data.default;
+						}
 						debug( "shapes.paths["+index+"] shape key ["+shape_key+"] name ["+shape_name+"]" );
 						load_svg_path_data( 
 							shape_key, 
 							shape_name, 
+							shape_is_default, 
 							"shapes/paths/"+shape_key+".svg"  // shape file URL
 						);
 					} );
@@ -604,7 +609,7 @@ function init_from_config () {
 
 
 
-function load_svg_path_data ( shape_key, shape_name, file_url ) {
+function load_svg_path_data ( shape_key, shape_name, shape_is_default, file_url ) {
 
 	debug( "get shape ["+shape_key+"] url: "+file_url );
 	$.ajax( {
@@ -630,8 +635,10 @@ function load_svg_path_data ( shape_key, shape_name, file_url ) {
 			// add new option to select list with id "draw-type"
 			$( "select#draw-type" ).append( $new_option );
 
-			// select newest option (for testing)
-			$( "select#draw-type" ).val( shape_key ).trigger( "change" ); 
+			if ( shape_is_default ) {
+				// make this shape active
+				$( "select#draw-type" ).val( shape_key ).trigger( "change" ); 
+			}
 
 		},
 	} );

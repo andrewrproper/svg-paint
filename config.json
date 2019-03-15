@@ -2,6 +2,7 @@
 	"shapes" : {
 		"paths" : [
 			{ 
+				"default" : true,
 				"key": "star-5-point",
 				"name": "5-Point Star"
 			},
