@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>SVG Paint</title>
+  <meta charset="utf-8" />
+	<meta 
+    name="description" 
+    content="SVG Paint Experiment is a svg paint app."> 
+	<meta 
+    name="keywords" 
+    content="paint, svg, draw, digital art, web app">
+	<meta 
+    name="viewport" 
+    content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=0" />
+
+	<!-- BEGIN - init jQuery Mobile -->
+
+	<link rel="stylesheet" href="css/themes/svg-paint-01.min.css" />
+	<link rel="stylesheet" href="css/themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/themes/jquery.mobile.structure-1.4.5.min.css" />
+
+	<script src="js/jquery-1.11.1.min.js"></script>
+  <script>
+    /*
+      fix for: Uncaught SecurityError: Failed to execute 'replaceState' on 'History': 
+               cannot be created in a document with origin 'null'
+      from: http://stackoverflow.com/questions/32453806/uncaught-securityerror-failed-to-execute-replacestate-on-history-cannot-be
+		*/
+    $(document).bind('mobileinit',function(){
+        $.mobile.changePage.defaults.changeHash = false;
+        $.mobile.hashListeningEnabled = false;
+        $.mobile.pushStateEnabled = false;
+    });
+  </script> 
+	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+
+
+
+
+	<link rel="icon" type="image/png" href="images/icon.png" />
+	<link href="ios_fav.png" rel="apple-touch-icon-precomposed"/>
+  <link rel="stylesheet" type="text/css" href="css/svg-paint.css">
+
+
+	<!-- BEGIN - SVG.js -->
+	<script src="js/svg.min.js"></script>
+	<script src="js/svg.math.min.js"></script>
+	<script src="js/svg.filter.min.js"></script>
+  <script src="js/svg-paint.js"></script>
+
+
+
+	<!-- live: min -->
+<!--
+	<script src="js/raphael.min.js"></script>
+-->
+  <!-- END raphael.js -->
+
+
+  <!-- BEGIN - test/dev JS,css -->
+
+  <script type="text/javascript">
+  </script>
+
+  <style media="screen" type="text/css">
+
+ 		#svg-wrapper {
+			padding-right: 2em;
+			padding-left: 1em;
+//			border: 1px solid red;
+		}
+		#svg-container {
+		}
+
+		.color-picker {
+			position: fixed;
+			top: 80px;
+			left: 20px;
+			z-index: 300000;
+			display: table;
+		}
+		.color-picker .row {
+			display: table-row;
+		}
+		.color-picker .cell {
+			display: table-cell;
+			vertical-align: top;
+      padding-right: 6px;
+      padding-left: 6px;
+		}
+		.color-picker .end {
+			clear: both;
+		}
+
+	  .color-picker-element {
+			height: 270px;
+			width: 200px;
+		}
+	  .color-wheel-element {
+			height: 270px;
+			width: 200px;
+		}
+    .colortext-element {
+		}
+
+		.upload-file-wrapper {
+			display: none;
+		}
+
+		#svg-status {
+			height: 30em;
+			overflow: auto;
+			border: 2px solid #aaa;
+			background-color: #eee;
+		}
+
+		.content {
+			/*
+				border: 1px solid blue;
+			*/
+			overflow: auto;
+			margin: 0px;
+			padding: 0px;
+		}
+
+	</style>
+
+  <!-- END - test/dev JS,css-->
+  
+</head>
+<body>
+
+
+<div data-role="page">
+
+
+	<div data-role="panel" 
+		id="menu-panel" 
+		class="jqm-outer" 
+		data-position="left" 
+		data-display="overlay" 
+		data-theme="a"
+		data-dismissible="false"
+	>
+
+		<div class="content">
+
+			<div data-role="collapsibleset" data-theme="a" data-content-theme="a" data-mini="true">
+				<div data-role="collapsible">
+					<h4>Colors</h4>
+
+					<div class="ui-grid-a">
+					  <div class="ui-block-a">
+		
+							<label for="fill-color-picked">Fill Color:</label>
+		
+						</div>
+					  <div class="ui-block-b">
+		
+							<input type="color" id="fill-color-picked" value="#00c0f0"
+								data-mini="true"
+							/>
+		
+						</div>
+					</div>
+		
+					<div class="ui-grid-a">
+					  <div class="ui-block-a">
+		
+							<label for="stroke-color-picked">Stroke Color:</label>
+		
+						</div>
+					  <div class="ui-block-b">
+		
+							<input type="color" id="stroke-color-picked" value="#003090"
+								data-mini="true"
+							/>
+		
+						</div>
+					</div>
+
+				</div>
+				<div data-role="collapsible" data-collapsed="false">
+					<h4>Draw</h4>
+
+					<label for="draw-mode">Mode:</label>
+					<select
+						name="draw-mode"
+						id="draw-mode"
+						data-mini="true" 
+					>
+						<option value="single">Single</option>
+						<option value="trail">Trail</option>
+					</select>
+		
+		
+					<label for="draw-type">Type:</label>
+					<select
+						name="draw-type"
+						id="draw-type"
+						data-mini="true" 
+					>
+						<option value="square">Square</option>
+						<option value="circle">Circle</option>
+					</select>
+		
+		
+					<div data-role="rangeslider" class="rangeslider">
+						<label for="draw-opacity" >Opacity:</label>
+						<input type="range" name="draw-opacity" id="draw-opacity" min="0" max="100" value="40" data-mini="true">
+					</div>
+		
+					<div id="draw-size-wrap">
+						<div data-role="rangeslider" class="rangeslider">
+							<label for="draw-size" id="draw-size-label">Trail Size:</label>
+							<input type="range" name="draw-size" id="draw-size" min="1" max="100" value="10" data-mini="true">
+						</div>
+					</div>
+		
+					<div data-role="rangeslider" class="rangeslider">
+						<label for="draw-stroke-width" >Stroke Width:</label>
+						<input type="range" name="draw-stroke-width" id="draw-stroke-width" min="0" max="20" value="4" data-mini="true">
+					</div>
+		
+				</div>
+				<div data-role="collapsible">
+					<h4>Filters</h4>
+
+					<div data-role="rangeslider" class="rangeslider">
+						<label for="draw-blur-amount" >Blur:</label>
+						<input type="range" name="draw-blur-amount" id="draw-blur-amount" min="0" max="10" value="0" data-mini="true">
+					</div>
+
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div
+		data-role="panel"
+		id="log-panel"
+		class="jqm-outer"
+		data-position="right"
+		data-display="overlay"
+		data-theme="a"
+		data-dismissible="false"
+	>
+
+		<div class="content">
+
+			<b>status log</b>
+
+			<div id="svg-status"></div>
+
+		</div>
+	</div>
+
+
+
+
+
+	<div class="upload-file-wrapper">
+		<input id="upload-file" type="file" name="Upload"/>
+	</div>
+
+
+	<div data-role="header" class="splatchemy-toolbar svg-paint-toolbar">
+
+		<div class="icons-left">
+
+			<a href="#menu-panel"
+				class="
+					ui-btn
+					ui-btn-inline
+					ui-btn-icon-notext 
+					ui-icon-bars 
+					ui-corner-all
+				"
+			>No Text</a>
+
+		</div>
+
+    <div class="header">SVG Paint Experiment</div class="header">
+
+		<div class="icons-right">
+
+<!--
+			<a href="#log-panel"
+				class="
+					ui-btn
+					ui-btn-inline
+					ui-btn-icon-notext 
+					ui-icon-carat-d 
+					ui-corner-all
+				">No Text</a>
+-->
+
+		</div>
+
+		<div class="end"></div>
+
+  </div>
+
+	<input type="hidden" id="stroke-color-picked"></input>
+
+	<div role="main" class="webchemy-outer">
+
+		<div data-role="popup" class="color-picker" id="fill-color-picker">
+			<div class="row">
+				<div class="cell" class="color-picker-element" id="fill-color-picker-element"><h3>color-picker</h3></div>
+				<div class="cell" class="color-wheel-element" id="fill-color-wheel-element"><h3>color-wheel</h3></div>
+	      <div class="cell" class="colortext-elemint" id="fill-colortext-element">
+	            <h1 id="h1">Color Picker</h1>
+	            <table id="values">
+	                <tr>
+	                    <th>R</th>
+	                    <td id="vr"></td>
+	                    <th>H</th>
+	                    <td id="vh"></td>
+	                    <th>H</th>
+	                    <td id="vh2"></td>
+	                </tr>
+	                <tr>
+	                    <th>G</th>
+	                    <td id="vg"></td>
+	                    <th>S</th>
+	                    <td id="vs"></td>
+	                    <th>S</th>
+	                    <td id="vs2"></td>
+	                </tr>
+	                <tr>
+	                    <th>B</th>
+	                    <td id="vb"></td>
+	                    <th>B</th>
+	                    <td id="vv"></td>
+	                    <th>L</th>
+	                    <td id="vl"></td>
+	                </tr>
+	            </table>
+	            <input type="text" id="output" value="#eeeeee">
+	
+							<a href="#set-color"
+								class="
+									ui-btn
+									ui-btn-inline
+									ui-corner-all
+								">Use This Color</a>
+	
+				</div>
+			</div>
+			<div class="end"></div>
+		</div>
+
+
+		<div data-role="popup" class="color-picker" id="stroke-color-picker">
+			<div class="row">
+				<div class="cell" class="color-picker-element" id="stroke-color-picker-element"><h3>color-picker</h3></div>
+				<div class="cell" class="color-wheel-element" id="stroke-color-wheel-element"><h3>color-wheel</h3></div>
+	      <div class="cell" class="colortext-elemint" id="stroke-colortext-element">
+	            <h1 id="h1">Color Picker</h1>
+	            <table id="values">
+	                <tr>
+	                    <th>R</th>
+	                    <td id="vr"></td>
+	                    <th>H</th>
+	                    <td id="vh"></td>
+	                    <th>H</th>
+	                    <td id="vh2"></td>
+	                </tr>
+	                <tr>
+	                    <th>G</th>
+	                    <td id="vg"></td>
+	                    <th>S</th>
+	                    <td id="vs"></td>
+	                    <th>S</th>
+	                    <td id="vs2"></td>
+	                </tr>
+	                <tr>
+	                    <th>B</th>
+	                    <td id="vb"></td>
+	                    <th>B</th>
+	                    <td id="vv"></td>
+	                    <th>L</th>
+	                    <td id="vl"></td>
+	                </tr>
+	            </table>
+	            <input type="text" id="output" value="#eeeeee">
+	
+							<a href="#set-color"
+								class="
+									ui-btn
+									ui-btn-inline
+									ui-corner-all
+								">Use This Color</a>
+	
+				</div>
+			</div>
+			<div class="end"></div>
+		</div>
+
+
+
+
+
+	<div id="svg-wrapper">
+	<div id="svg-container"></div>
+	</div>
+
+
+  </div>
+
+</body>
+</html>
+
+<!-- vim: ts=2 paste
+-->

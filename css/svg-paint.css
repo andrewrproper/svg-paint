@@ -1,0 +1,149 @@
+
+
+body {
+	/* can use non-white, to show difference between
+		body background and canvas background,
+		which helps with testing.
+	*/
+	background-color: #fff;
+
+	overflow: auto; 
+}
+
+
+#drag-n-drop {
+
+	background-color: #ccf;
+
+	font-size: larger;
+
+	text-align: center;
+	padding-top: 2.5em;
+	padding-bottom: 1em;
+}
+#importing {
+
+	background-color: #cfc;
+
+	font-size: larger;
+
+	text-align: center;
+	padding-top: 2.5em;
+	padding-bottom: 1em;
+}
+#error {
+
+	background-color: #fcc;
+
+	font-size: larger;
+
+	text-align: center;
+	padding-top: 2.5em;
+	padding-bottom: 1em;
+}
+
+
+#loading {
+	font-family: arial; 
+	color: #666; 
+	width: 200px; 
+	position: absolute; 
+	top: 0; 
+	margin-left: -100px; 
+	left: 50%; 
+	font-size: 20px; 
+	text-align: center;
+	padding-top: 3em;
+}
+
+
+div.loading {
+	font-family: arial; 
+	color: #666; 
+	width: 200px; 
+	position: absolute; 
+	top: 0; 
+	margin-left: -100px; 
+	padding-top: 3em;
+	left: 50%; 
+	font-size: 20px; 
+	text-align: center;
+}
+
+
+
+.svg-paint-toolbar {
+  z-index: 50000;
+}
+
+.svg-paint-toolbar .icons-left {
+	float: left;
+}
+.svg-paint-toolbar .icons-left .rangeslider {
+	margin: 0px;
+	padding: 0px;
+	display: inline-block;
+	min-width: 13em;
+}
+.svg-paint-toolbar .icons-left div.rangeslider > label {
+	display: none;
+}
+.svg-paint-toolbar .header {
+	display: inline-block;
+	text-align: center;
+	font-size: larger;
+	font-weight: bold;
+	padding-top: 0.5em;
+	width: 90%;
+	vertical-align: middle;
+}
+.svg-paint-toolbar .icons-right {
+	float: right;
+}
+.svg-paint-toolbar .end {
+	clear: both;
+}
+
+
+
+.top-overlay {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 50000;
+
+}
+
+#menu-panel,
+#log-panel {
+	padding-top: 3.0em;
+}
+.touch-not-enabled {
+	/* this class is applied via jQuery when touch is not enabled */
+  zoom: 80%;
+}
+
+
+#menu-panel .content {
+	/* 
+	border: 1px solid #0c0;
+	*/
+}
+
+
+.hidden-items-wrapper {
+	display: none;
+}
+
+.inline {
+	display: inline;
+}
+
+
+/*
+vim: ts=2
+*/
+
+
