@@ -44,37 +44,78 @@ let log = {
 
 let svg_paint_canvas = {
 
-	svg : null,
+	svg 					: null,
+	jq_container 	: null,
+	jq_toolbar   	: null,
+	container_x   : null,
+	container_y   : null,
 
-	init : function ( $container, container_height ) {
-		let container_position = $container.position();
+	resize : function () {
 
-		let container_width  	= $container.width();
-		let container_x 			= container_position.left;
-		let container_y 			= container_position.top;
+		// only run if container has been initialized
+		if ( this.jq_container !== null ) {
 
-		this.svg = SVG('svg-container').size( container_width, container_height );
+			let container_position 	= this.jq_container.position();
 
-		$container.on( "touchmove", function ( event ) {
+			let container_width  		= this.jq_container.width();
+ 			let container_height 		= window.innerHeight - ( this.jq_toolbar.height() ); // - 16;
+
+			this.container_x 				= container_position.left;
+			this.container_y 				= container_position.top;
+
+			this.svg.size( container_width, container_height );
+			log.debug( "canvas.resize: resized svg to: " + container_width + " x " + container_height );
+
+			// this doesn't really belong in this object
+			$( "#menu-panel div.contents" ).attr( "height", container_height+"px" );
+
+		} else {
+			log.debug( "canvas.resize: doing nothing b/c container not initialized: " );
+			log.debug( this.jq_container );
+		}
+	},
+
+	init : function ( jq_container, jq_toolbar ) {
+		let self = this
+
+		// 1) initialize this object
+
+		this.jq_container = jq_container;
+		this.jq_toolbar 	= jq_toolbar;
+
+		this.svg = SVG('svg-container');
+
+		// 2) call resize() on this object
+
+		this.resize();
+
+		// 3) initialize event handlers
+
+
+		$( window ).resize( function () {
+			self.resize();
+		} );
+
+		this.jq_container.on( "touchmove", function ( event ) {
 			// prevent scrolling when drawing on svg container
 			event.preventDefault();
 		} );
 	
-		$container.on( "vmousedown", function ( event ) {
-			svg_paint_canvas_events.mousedown( event, container_x, container_y );
+		this.jq_container.on( "vmousedown", function ( event ) {
+			svg_paint_canvas_events.mousedown( event, self.container_x, self.container_y );
 		} );
 	
-		$container.on( "vmousemove", function ( event ) {
-			svg_paint_canvas_events.mousemove( event, container_x, container_y );
+		this.jq_container.on( "vmousemove", function ( event ) {
+			svg_paint_canvas_events.mousemove( event, self.container_x, self.container_y );
 		} );
 	
-		$container.on( "vmouseup", function ( event ) {
-			svg_paint_canvas_events.mouseup( event, container_x, container_y );
+		this.jq_container.on( "vmouseup", function ( event ) {
+			svg_paint_canvas_events.mouseup( event, self.container_x, self.container_y );
 		} );
 
 	},
 
-	clear : function ( $container ) {
+	clear : function () {
 		this.svg.clear();
 	},
 
@@ -591,12 +632,8 @@ function init_svg_paint () {
 	let $toolbar = $( ".svg-paint-toolbar" );
 
 	let $container = $( "#svg-container" );
- 	let container_height 	= window.innerHeight - ( $toolbar.height() ); // - 16;
 
-	svg_paint_canvas.init( $container, container_height );
-
-
-	$( "#menu-panel div.contents" ).attr( "height", container_height+"px" );
+	svg_paint_canvas.init( $container, $toolbar );
 
 	$( "#draw-mode" ).change( function ( event ) {
 		let value = $( this ).val();
