@@ -572,11 +572,11 @@ function init_svg_paint () {
 		svg_paint_events.mousedown( event, container_x, container_y );
 	} );
 
-	$( "#svg-container" ).on( "mousemove", function ( event ) {
+	$( "#svg-container" ).on( "vmousemove", function ( event ) {
 		svg_paint_events.mousemove( event, container_x, container_y );
 	} );
 
-	$( "#svg-container" ).on( "mouseup", function ( event ) {
+	$( "#svg-container" ).on( "vmouseup", function ( event ) {
 		svg_paint_events.mouseup( event, container_x, container_y );
 	} );
 
