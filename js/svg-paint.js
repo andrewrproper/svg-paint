@@ -164,9 +164,12 @@ function draw_new_elements ( params ) {
 
 				new_e.center( centre_x, centre_y );
 
+				// scale_factor adjusts scaling so that it matches where the pointer moves
+				let scale_factor = 4;
+
 				// scale from 200px down, then up to relative size
 				new_e.transform( { "scale": base_path_width * 0.00001, "relative": true } );
-				new_e.transform( { "scale": radius * 2, "relative": true } );
+				new_e.transform( { "scale": radius * scale_factor, "relative": true } );
 
 				new_e_list.push( new_e );
 				new_e_attr_by_index[ new_e_list.length - 1 ] = new_e_attr;
@@ -386,16 +389,18 @@ let svg_paint_events = {
 	last_new_e_list : [],
 	last_mousemove_new_e_list : [],
 
-	mousedown: function ( event ) {
+	mousedown: function ( event, container_x, container_y ) {
 		this.mouse_is_down = true;
 		this.mouse_was_moved = false;
 		this.down_end   = false;
-		this.down_x = event.offsetX;
-		this.down_y = event.offsetY;
+
+		// switch from .offsetX to .pageX to accomodate jquery mobile "vmousemove"
+		this.down_x = event.pageX - container_x;
+		this.down_y = event.pageY - container_y;
 	},
 
 
-	mousemove: function ( event ) {
+	mousemove: function ( event, container_x, container_y ) {
 
 		if ( this.mouse_is_down ) {
 
@@ -408,8 +413,9 @@ let svg_paint_events = {
 			}
 			this.mouse_was_moved = true;
 
-			this.move_x = event.offsetX;
-			this.move_y = event.offsetY;
+			// switch from .offsetX to .pageX to accomodate jquery mobile "vmousemove"
+			this.move_x = event.pageX - container_x;
+			this.move_y = event.pageY - container_y;
 
 			if ( $("#draw-mode").val() == "trail" ) {
 				// draw mode: trail
@@ -441,8 +447,8 @@ let svg_paint_events = {
 			} else {
 				// draw mode: single
 
-				let delta_x = move_x - down_x;
-				let delta_y = move_y - down_y;
+				let delta_x = this.move_x - this.down_x;
+				let delta_y = this.move_y - this.down_y;
 
 				if ( delta_x < 0 ) {
 					delta_x = delta_x * -1;
@@ -474,15 +480,16 @@ let svg_paint_events = {
 
 	},
 
-	mouseup : function ( event ) {
+	mouseup : function ( event, container_x, container_y ) {
 
 		if ( this.mouse_is_down ) {
 			this.mouse_is_down = false;
 
 			this.down_end = true;
 
-			this.up_x = event.offsetX;
-			this.up_y = event.offsetY;
+			// switch from .offsetX to .pageX to accomodate jquery mobile "vmousemove"
+			this.up_x = event.pageX - container_x;
+			this.up_y = event.pageY - container_y;
 
 
 			/* BEGIN - calc radius based on last point and current point */
@@ -562,15 +569,15 @@ function init_svg_paint () {
 
 
 	$( "#svg-container" ).on( "vmousedown", function ( event ) {
-		svg_paint_events.mousedown( event );
+		svg_paint_events.mousedown( event, container_x, container_y );
 	} );
 
 	$( "#svg-container" ).on( "mousemove", function ( event ) {
-		svg_paint_events.mousemove( event );
+		svg_paint_events.mousemove( event, container_x, container_y );
 	} );
 
 	$( "#svg-container" ).on( "mouseup", function ( event ) {
-		svg_paint_events.mouseup( event );
+		svg_paint_events.mouseup( event, container_x, container_y );
 	} );
 
 
