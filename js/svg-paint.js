@@ -61,15 +61,15 @@ let svg_paint_canvas = {
 		} );
 	
 		$container.on( "vmousedown", function ( event ) {
-			svg_paint_events.mousedown( event, container_x, container_y );
+			svg_paint_canvas_events.mousedown( event, container_x, container_y );
 		} );
 	
 		$container.on( "vmousemove", function ( event ) {
-			svg_paint_events.mousemove( event, container_x, container_y );
+			svg_paint_canvas_events.mousemove( event, container_x, container_y );
 		} );
 	
 		$container.on( "vmouseup", function ( event ) {
-			svg_paint_events.mouseup( event, container_x, container_y );
+			svg_paint_canvas_events.mouseup( event, container_x, container_y );
 		} );
 
 	},
@@ -411,7 +411,7 @@ let svg_paint_ui = {
 
 
 
-let svg_paint_events = {
+let svg_paint_canvas_events = {
 
 	mouse_is_down : false,
 	mouse_was_moved : false,
@@ -576,9 +576,6 @@ let svg_paint_events = {
 		}
 
 	},
-
-
-
 
 
 };
