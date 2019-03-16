@@ -7,7 +7,6 @@ let debug_verbose_enabled = 1; // whether to dump objects or just print as strin
 let diag_enabled = 0;
 
 let svg_config;
-let draw;
 
 let log = {
 	diag : function ( message_or_object ) {
@@ -39,6 +38,46 @@ let log = {
 		);
 		$status.scrollTop( $status.get(0).scrollHeight );
 	},
+}
+
+
+
+let svg_paint_canvas = {
+
+	svg : null,
+
+	init : function ( $container, container_height ) {
+		let container_position = $container.position();
+
+		let container_width  	= $container.width();
+		let container_x 			= container_position.left;
+		let container_y 			= container_position.top;
+
+		this.svg = SVG('svg-container').size( container_width, container_height );
+
+		$container.on( "touchmove", function ( event ) {
+			// prevent scrolling when drawing on svg container
+			event.preventDefault();
+		} );
+	
+		$container.on( "vmousedown", function ( event ) {
+			svg_paint_events.mousedown( event, container_x, container_y );
+		} );
+	
+		$container.on( "vmousemove", function ( event ) {
+			svg_paint_events.mousemove( event, container_x, container_y );
+		} );
+	
+		$container.on( "vmouseup", function ( event ) {
+			svg_paint_events.mouseup( event, container_x, container_y );
+		} );
+
+	},
+
+	clear : function ( $container ) {
+		this.svg.clear();
+	},
+
 }
 
 
@@ -110,11 +149,11 @@ function draw_new_elements ( params ) {
 	var centre_y = params.y;
 
 	if ( type == "circle" && params.x && params.y && params.radius ) {
-		var new_e = draw.circle( radius );
+		var new_e = svg_paint_canvas.svg.circle( radius );
 		new_e.center( centre_x, centre_y );
 		new_e_list.push( new_e );
 	} else if ( type == "square" && params.x && params.y && params.radius ) {
-		new_e = draw.rect( 
+		new_e = svg_paint_canvas.svg.rect( 
 			radius * 2,  // width
 			radius * 2,  // height
 		).center( 
@@ -160,7 +199,7 @@ function draw_new_elements ( params ) {
 					}
 				} );
 
-				new_e = draw.path( path_d_text ); // get a SVG.Path object, for use for import
+				new_e = svg_paint_canvas.svg.path( path_d_text ); // get a SVG.Path object, for use for import
 
 				new_e.center( centre_x, centre_y );
 
@@ -549,42 +588,18 @@ let svg_paint_events = {
 
 
 
+
 function init_svg_paint () {
-
-	let $container = $( "#svg-container" );
-
-	let container_position = $container.position();
 
 	let $toolbar = $( ".svg-paint-toolbar" );
 
-	let container_width  = $container.width();
- 	let container_height = window.innerHeight - ( $toolbar.height() ) - 16;
+	let $container = $( "#svg-container" );
+ 	let container_height 	= window.innerHeight - ( $toolbar.height() ); // - 16;
 
-	draw = SVG('svg-container').size( container_width, container_height );
+	svg_paint_canvas.init( $container, container_height );
+
 
 	$( "#menu-panel div.contents" ).attr( "height", container_height+"px" );
-
-	let container_x = container_position.left;
-	let container_y = container_position.top;
-
-
-	$( "#svg-container" ).on( "touchmove", function ( event ) {
-		// prevent scrolling when drawing on svg container
-		event.preventDefault();
-	} );
-
-	$( "#svg-container" ).on( "vmousedown", function ( event ) {
-		svg_paint_events.mousedown( event, container_x, container_y );
-	} );
-
-	$( "#svg-container" ).on( "vmousemove", function ( event ) {
-		svg_paint_events.mousemove( event, container_x, container_y );
-	} );
-
-	$( "#svg-container" ).on( "vmouseup", function ( event ) {
-		svg_paint_events.mouseup( event, container_x, container_y );
-	} );
-
 
 	$( "#draw-mode" ).change( function ( event ) {
 		let value = $( this ).val();
@@ -599,12 +614,13 @@ function init_svg_paint () {
 	} );
 
 
+	$( "#canvas-clear" ).click( function ( event ) {
+		svg_paint_canvas.clear();
+	} );
+
 	svg_paint_ui.init_from_config();
 
 }
-
-
-
 
 
 
