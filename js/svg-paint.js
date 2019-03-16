@@ -568,6 +568,11 @@ function init_svg_paint () {
 	let container_y = container_position.top;
 
 
+	$( "#svg-container" ).on( "touchmove", function ( event ) {
+		// prevent scrolling when drawing on svg container
+		event.preventDefault();
+	} );
+
 	$( "#svg-container" ).on( "vmousedown", function ( event ) {
 		svg_paint_events.mousedown( event, container_x, container_y );
 	} );
