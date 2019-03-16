@@ -266,14 +266,180 @@ function draw_new_elements ( params ) {
 }
 
 
+var svg_paint = {
+
+	mouse_is_down : false,
+	mouse_was_moved : false,
+	down_end 	 : false,
+	down_x : 0,
+	down_y : 0,
+	last_move_x : 0,
+	last_move_y : 0,
+	move_x : 0,
+	move_y : 0,
+	up_x : 0,
+	up_y : 0,
+
+	last_new_e_list : [],
+	last_mousemove_new_e_list : [],
+
+	mousedown: function ( event ) {
+		this.mouse_is_down = true;
+		this.mouse_was_moved = false;
+		this.down_end   = false;
+		this.down_x = event.offsetX;
+		this.down_y = event.offsetY;
+	},
+
+
+	mousemove: function ( event ) {
+
+		if ( this.mouse_is_down ) {
+
+			if ( this.mouse_was_moved ) {
+				this.last_move_x = this.move_x;
+				this.last_move_y = this.move_y;
+			} else {
+				this.last_move_x = this.down_x;
+				this.last_move_y = this.down_y;
+			}
+			this.mouse_was_moved = true;
+
+			this.move_x = event.offsetX;
+			this.move_y = event.offsetY;
+
+			if ( $("#draw-mode").val() == "trail" ) {
+				// draw mode: trail
+
+				let delta_x = this.move_x - this.last_move_x;
+				let delta_y = this.move_y - this.last_move_y;
+
+				if ( delta_x < 0 ) {
+					delta_x = delta_x * -1;
+				}
+				if ( delta_y < 0 ) {
+					delta_y = delta_y * -1;
+				}
+
+				// radius = square_root_of( x^2 + y^2 )
+				let radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
+
+				// make shapes a bit bigger
+				radius = radius + ( radius * 0.25 );
+
+				this.last_mousemove_new_e_list = draw_new_elements( { 
+					x: this.last_move_x, 
+					y: this.last_move_y,
+					radius: radius,
+					angle_x : this.move_x,
+					angle_y : this.move_y
+				} );
+
+			} else {
+				// draw mode: single
+
+				let delta_x = move_x - down_x;
+				let delta_y = move_y - down_y;
+
+				if ( delta_x < 0 ) {
+					delta_x = delta_x * -1;
+				}
+				if ( delta_y < 0 ) {
+					delta_y = delta_y * -1;
+				}
+
+				// radius = square_root_of( x^2 + y^2 )
+				let radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
+
+				if ( this.last_mousemove_new_e_list !== null && this.last_mousemove_new_e_list !== undefined ) {
+					// remove last drawn point before drawing new point
+
+					this.last_mousemove_new_e_list = remove_e_list( this.last_mousemove_new_e_list );
+				}
+
+				this.last_mousemove_new_e_list = draw_new_elements( { 
+					x: this.down_x, 
+					y: this.down_y,
+					radius: radius,
+					angle_x : this.move_x,
+					angle_y : this.move_y
+				} );
+
+			}
+
+		}
+
+	},
+
+	mouseup : function ( event ) {
+
+		if ( this.mouse_is_down ) {
+			this.mouse_is_down = false;
+
+			this.down_end = true;
+
+			this.up_x = event.offsetX;
+			this.up_y = event.offsetY;
+
+
+			/* BEGIN - calc radius based on last point and current point */
+
+			if ( $("#draw-mode").val() == "trail" ) {
+				// draw mode: trail
+				//   - nothing to do on mouse up
+			} else {
+				// draw mode: single
+				//   - draw final shape on mouse up
+
+
+				var delta_x = this.up_x - this.down_x;
+				var delta_y = this.up_y - this.down_y;
+
+				if ( delta_x < 0 ) {
+					delta_x = delta_x * -1;
+				}
+				if ( delta_y < 0 ) {
+					delta_y = delta_y * -1;
+				}
+
+				// radius = square_root_of( x^2 + y^2 )
+				let radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
+
+				/* END - calc radius based on last point and current point */
+
+				if ( this.last_mousemove_new_e_list !== null && this.last_mousemove_new_e_list !== undefined ) {
+
+					// remove last drawn elements before drawing new elements
+					this.last_mousemove_new_e_list = remove_e_list( this.last_mousemove_new_e_list );
+				}
+
+
+				this.last_new_e_list = draw_new_elements( { 
+					x: this.down_x, 
+					y: this.down_y,
+					radius: radius,
+					angle_x : this.up_x,
+					angle_y : this.up_y,
+				} );
+
+			}
+
+		}
+
+	},
+
+
+};
+
+
+
+
+
 function init_svg_paint () {
 
 	var $container = $( "#svg-container" );
 
 	var container_position = $container.position();
-
-//	var container_width = 900;
-//	var container_height = 720;
 
 	var $toolbar = $( ".svg-paint-toolbar" );
 
@@ -287,254 +453,19 @@ function init_svg_paint () {
 	var container_x = container_position.left;
 	var container_y = container_position.top;
 
-//	console.log( "container_x: "+container_x );
-//	console.log( "container_y: "+container_y );
-
-
-	var mouse_is_down = false;
-	var mouse_was_moved = false;
-	var down_end 	 = false;
-	var down_x;
-	var down_y;
-	var last_move_x;
-	var last_move_y;
-	var move_x;
-	var move_y;
-	var up_x;
-	var up_y;
-
-	var last_new_e_list;
-	var last_mousemove_new_e_list;
 
 	$( "#svg-container" ).mousedown( function ( event ) {
-//		console.log( "DEBUG - mousedown - event data: ");
-//		console.log( event );
-
-		mouse_is_down = true;
-		mouse_was_moved = false;
-		down_end   = false;
-		down_x = event.offsetX;
-		down_y = event.offsetY;
-
-//		console.log( "down_x: "+down_x+" down_y: "+down_y );
-//		console.log( "up_x: "+up_x+" up_y: "+up_y );
+		svg_paint.mousedown( event );
 	} );
 
 	$( "#svg-container" ).mousemove( function ( event ) {
-
-		if ( mouse_is_down ) {
-
-//			console.log( "DEBUG - mousemove - event data: ");
-//			console.log( event );
-	
-			if ( mouse_was_moved ) {
-				last_move_x = move_x;
-				last_move_y = move_y;
-			} else {
-				last_move_x = down_x;
-				last_move_y = down_y;
-			}
-			mouse_was_moved = true;
-
-			move_x = event.offsetX;
-			move_y = event.offsetY;
-
-//			console.log( "down_x: "+down_x+" down_y: "+down_y );
-//			console.log( "move_x: "+move_x+" move_y: "+move_y );
-
-
-			/* BEGIN - calc radius based on last point and current point */
-
-//			var radius = ( delta_x + delta_y ) * 1.5;
-//			var radius = ( delta_x + delta_y ) / 2;
-
-			/* END - calc radius based on last point and current point */
-
-			if ( $("#draw-mode").val() == "trail" ) {
-				// draw mode: trail
-
-
-				var delta_x = move_x - last_move_x;
-				var delta_y = move_y - last_move_y;
-//				var delta_x = move_x - last_move_x;
-//				var delta_y = move_y - last_move_y;
-
-				if ( delta_x < 0 ) {
-					delta_x = delta_x * -1;
-				}
-				if ( delta_y < 0 ) {
-					delta_y = delta_y * -1;
-				}
-
-
-				// radius = square_root_of( x^2 + y^2 )
-				var radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
-
-				// make shapes a bit bigger
-				radius = radius + ( radius * 0.25 );
-
-
-				last_mousemove_new_e_list = draw_new_elements( { 
-					x: last_move_x, 
-					y: last_move_y,
-					radius: radius,
-					angle_x : move_x,
-					angle_y : move_y
-				} );
-
-
-			} else {
-				// draw mode: single
-
-
-				var delta_x = move_x - down_x;
-				var delta_y = move_y - down_y;
-//				var delta_x = move_x - last_move_x;
-//				var delta_y = move_y - last_move_y;
-
-				if ( delta_x < 0 ) {
-					delta_x = delta_x * -1;
-				}
-				if ( delta_y < 0 ) {
-					delta_y = delta_y * -1;
-				}
-
-
-				// radius = square_root_of( x^2 + y^2 )
-				var radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
-
-
-
-				if ( last_mousemove_new_e_list !== null && last_mousemove_new_e_list !== undefined ) {
-					// remove last drawn point before drawing new point
-
-					last_mousemove_new_e_list = remove_e_list( last_mousemove_new_e_list );
-				}
-
-
-
-				last_mousemove_new_e_list = draw_new_elements( { 
-					x: down_x, 
-					y: down_y,
-					radius: radius,
-					angle_x : move_x,
-					angle_y : move_y
-				} );
-
-			}
-
-
-
-		}
-
+		svg_paint.mousemove( event );
 	} );
 
 
 	$( "#svg-container" ).mouseup( function ( event ) {
-
-		if ( mouse_is_down ) {
-			mouse_is_down = false;
-
-//			console.log( "DEBUG - mouseup - event data: ");
-//			console.log( event );
-	
-			down_end = true;
-
-			up_x = event.offsetX;
-			up_y = event.offsetY;
-
-
-			/* BEGIN - calc radius based on last point and current point */
-
-			if ( $("#draw-mode").val() == "trail" ) {
-				// draw mode: trail
-				//   - nothing to do on mouse up
-			} else {
-				// draw mode: single
-				//   - draw final shape on mouse up
-
-
-//				var delta_x = up_x - last_move_x;
-//				var delta_y = up_y - last_move_y;
-				var delta_x = up_x - down_x;
-				var delta_y = up_y - down_y;
-
-				if ( delta_x < 0 ) {
-					delta_x = delta_x * -1;
-				}
-				if ( delta_y < 0 ) {
-					delta_y = delta_y * -1;
-				}
-
-//				var radius = ( delta_x + delta_y ) * 1.5;
-//				var radius = ( delta_x + delta_y ) / 2;
-
-				// radius = square_root_of( x^2 + y^2 )
-				var radius = Math.sqrt(  Math.pow( delta_x, 2 ) + Math.pow( delta_y , 2 )  );
-
-				/* END - calc radius based on last point and current point */
-
-
-				if ( last_mousemove_new_e_list !== null && last_mousemove_new_e_list !== undefined ) {
-
-					// remove last drawn elements before drawing new elements
-					last_mousemove_new_e_list = remove_e_list( last_mousemove_new_e_list );
-				}
-
-
-				last_new_e_list = draw_new_elements( { 
-					x: down_x, 
-					y: down_y,
-					radius: radius,
-					angle_x : up_x,
-					angle_y : up_y,
-				} );
-
-
-
-//				console.log( "down_x: "+down_x+" down_y: "+down_y );
-//				console.log( "up_x: "+up_x+" up_y: "+up_y );
-			}
-
-		}
-
+		svg_paint.mouseup( event );
 	} );
-
-
-
-
-	$( "#svg-container" ).click( function ( event ) {
-//		console.log( "DEBUG - click - event data: ");
-//		console.log( event );
-//		var click_x = event.pageX - container_x;
-//		var click_y = event.pageY - container_y;
-		var click_x = event.offsetX;
-		var click_y = event.offsetY;
-
-//		console.log( "click_x: "+click_x );
-//		console.log( "click_y: "+click_y );
-
-		var radius = 40;
-
-		if ( down_end ) {
-			if ( down_x != null && down_y != null ) {
-
-			}
-		}
-
-		var center_x = click_x;
-		var center_y = click_y;
-
-/*
-		draw
-			.circle( center_x, center_y, radius )
-			.attr( {
-				fill : "#0cc"
-			} ); //example
-*/
-
-	} );
-
 
 
 	$( "#draw-mode" ).change( function ( event ) {
