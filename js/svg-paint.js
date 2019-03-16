@@ -31,6 +31,18 @@ function debug ( message_or_object ) {
 	}
 }
 
+function log( message ) {
+	var $status = $( "#svg-status" );
+	$status.append(
+		"<div class='svg-status-row'>"+message+"</div>"
+	);
+	$status.scrollTop( $status.get(0).scrollHeight );
+}
+
+
+
+
+
 var draw;
 var tool_shape_paths = {};
 
@@ -251,14 +263,6 @@ function draw_new_elements ( params ) {
 	
 
 	return undefined;
-}
-
-function log( message ) {
-	var $status = $( "#svg-status" );
-	$status.append(
-		"<div class='svg-status-row'>"+message+"</div>"
-	);
-	$status.scrollTop( $status.get(0).scrollHeight );
 }
 
 
