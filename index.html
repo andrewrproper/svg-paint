@@ -68,65 +68,6 @@
 
   <style media="screen" type="text/css">
 
- 		#svg-wrapper {
-			padding-right: 2em;
-			padding-left: 1em;
-//			border: 1px solid red;
-		}
-		#svg-container {
-		}
-
-		.color-picker {
-			position: fixed;
-			top: 80px;
-			left: 20px;
-			z-index: 300000;
-			display: table;
-		}
-		.color-picker .row {
-			display: table-row;
-		}
-		.color-picker .cell {
-			display: table-cell;
-			vertical-align: top;
-      padding-right: 6px;
-      padding-left: 6px;
-		}
-		.color-picker .end {
-			clear: both;
-		}
-
-	  .color-picker-element {
-			height: 270px;
-			width: 200px;
-		}
-	  .color-wheel-element {
-			height: 270px;
-			width: 200px;
-		}
-    .colortext-element {
-		}
-
-		.upload-file-wrapper {
-			display: none;
-		}
-
-		#svg-status {
-			height: 30em;
-			overflow: auto;
-			border: 2px solid #aaa;
-			background-color: #eee;
-		}
-
-		.content {
-			/*
-				border: 1px solid blue;
-			*/
-			overflow: auto;
-			margin: 0px;
-			padding: 0px;
-		}
-
 	</style>
 
   <!-- END - test/dev JS,css-->
@@ -144,7 +85,6 @@
 		data-position="left" 
 		data-display="overlay" 
 		data-theme="a"
-		data-dismissible="false"
 	>
 
 		<div class="content">
@@ -323,7 +263,7 @@
 
 	<input type="hidden" id="stroke-color-picked"></input>
 
-	<div role="main" class="webchemy-outer">
+	<div role="main" class="svg-paint-outer">
 
 		<div data-role="popup" class="color-picker" id="fill-color-picker">
 			<div class="row">

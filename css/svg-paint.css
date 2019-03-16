@@ -141,6 +141,72 @@ div.loading {
 }
 
 
+
+
+#svg-wrapper {
+	margin: 0;
+	background-color: #ccc;
+}
+#svg-container {
+}
+#svg-container > svg {
+	background-color: #eee;
+}
+
+.color-picker {
+	position: fixed;
+	top: 80px;
+	left: 20px;
+	z-index: 300000;
+	display: table;
+}
+.color-picker .row {
+	display: table-row;
+}
+.color-picker .cell {
+	display: table-cell;
+	vertical-align: top;
+      padding-right: 6px;
+      padding-left: 6px;
+}
+.color-picker .end {
+	clear: both;
+}
+
+	  .color-picker-element {
+	height: 270px;
+	width: 200px;
+}
+	  .color-wheel-element {
+	height: 270px;
+	width: 200px;
+}
+    .colortext-element {
+}
+
+.upload-file-wrapper {
+	display: none;
+}
+
+#svg-status {
+	height: 30em;
+	overflow: auto;
+	border: 2px solid #aaa;
+	background-color: #eee;
+}
+
+.content {
+	/*
+		border: 1px solid blue;
+	*/
+	overflow: auto;
+	margin: 0px;
+	padding: 0px;
+}
+
+
+
+
 /*
 vim: ts=2
 */
