@@ -1,50 +1,51 @@
 
 
-var base_path_width = 200;
+let base_path_width = 200;
 
-var debug_enabled = 1;
-var debug_verbose_enabled = 1; // whether to dump objects or just print as string
-var diag_enabled = 0;
+let debug_enabled = 1;
+let debug_verbose_enabled = 1; // whether to dump objects or just print as string
+let diag_enabled = 0;
 
-var svg_config;
+let svg_config;
+let draw;
 
-function diag ( message_or_object ) {
-	if ( diag_enabled ) {
-		if ( typeof message_or_object === "object" ) {
-			console.log( message_or_object );
-		} else {
-			console.log( "DIAG - "+message_or_object );
-		}
-	}
-}
-function debug ( message_or_object ) {
-	if ( debug_enabled ) {
-		if ( typeof message_or_object === "object" ) {
-			if ( debug_verbose_enabled ) {
+let log = {
+	diag : function ( message_or_object ) {
+		if ( diag_enabled ) {
+			if ( typeof message_or_object === "object" ) {
 				console.log( message_or_object );
 			} else {
-				console.log( ""+message_or_object );
+				console.log( "DIAG - "+message_or_object );
 			}
-		} else {
-			console.log( "DEBUG - "+message_or_object );
 		}
-	}
+	},
+	debug: function ( message_or_object ) {
+		if ( debug_enabled ) {
+			if ( typeof message_or_object === "object" ) {
+				if ( debug_verbose_enabled ) {
+					console.log( message_or_object );
+				} else {
+					console.log( ""+message_or_object );
+				}
+			} else {
+				console.log( "DEBUG - "+message_or_object );
+			}
+		}
+	},
+	status: function ( message ) {
+		let $status = $( "#svg-status" );
+		$status.append(
+			"<div class='svg-status-row'>"+message+"</div>"
+		);
+		$status.scrollTop( $status.get(0).scrollHeight );
+	},
 }
 
-function log( message ) {
-	var $status = $( "#svg-status" );
-	$status.append(
-		"<div class='svg-status-row'>"+message+"</div>"
-	);
-	$status.scrollTop( $status.get(0).scrollHeight );
-}
 
 
 
 
-
-var draw;
-var tool_shape_paths = {};
+let tool_shape_paths = {};
 
 
 /*
@@ -68,8 +69,8 @@ function draw_new_elements ( params ) {
 	var draw_opacity 	= $("#draw-opacity").val();
 	var draw_size 		= $("#draw-size").val();
 
-	debug( "draw_opacity: "+draw_opacity );
-	debug( "draw_size: "+draw_size );
+	log.debug( "draw_opacity: "+draw_opacity );
+	log.debug( "draw_size: "+draw_size );
 
 	draw_opacity /= 100;
 
@@ -126,12 +127,12 @@ function draw_new_elements ( params ) {
 		if ( tool_shape_paths[ shape_key ] !== undefined ) {
 			var $paths = tool_shape_paths[ shape_key ];
 
-			debug( "shape_key ["+shape_key+"] paths: " );
-			debug( $paths );
+			log.debug( "shape_key ["+shape_key+"] paths: " );
+			log.debug( $paths );
 
 			$paths.each( function ( index, path ) {
-				debug( "index ["+index+"] path: " );
-				debug( path );
+				log.debug( "index ["+index+"] path: " );
+				log.debug( path );
 				var $path = $( path );
 
 				var path_d_text = $path.attr( "d" );
@@ -154,7 +155,7 @@ function draw_new_elements ( params ) {
 							)
 						) {
 							new_e_attr[ key ] = value;
-							diag( "new_e_attr ["+key+"] = "+value );
+							log.diag( "new_e_attr ["+key+"] = "+value );
 						}
 					}
 				} );
@@ -173,13 +174,13 @@ function draw_new_elements ( params ) {
 
 		} else {
 			message = "ERROR - draw_new_elements() - unhandled args, no shape ["+shape_key+"]";
-			debug( message );
+			log.debug( message );
 		}
 	}
 
 	if ( new_e_list.length > 0 ) {
-		diag( "drew new_e_list: " );
-		diag( new_e_list );
+		log.diag( "drew new_e_list: " );
+		log.diag( new_e_list );
 
 		$.each( new_e_list, function( index ) {
 			new_e_list[ index ].attr( {
@@ -201,8 +202,8 @@ function draw_new_elements ( params ) {
 		// rotate SVG to face in direction of last drag
 		if ( params.x && params.x && params.angle_x && params.angle_y ) {
 
-			debug( "params.x ["+params.x+"] params.y ["+params.y+"]" );
-			debug( "angle_x ["+params.angle_x+"] angle_y ["+params.angle_y+"]" );
+			log.debug( "params.x ["+params.x+"] params.y ["+params.y+"]" );
+			log.debug( "angle_x ["+params.angle_x+"] angle_y ["+params.angle_y+"]" );
 
 
 			// find direction
@@ -210,19 +211,19 @@ function draw_new_elements ( params ) {
 				// to right
 				if ( params.y > params.angle_y ) {
 					// to top
-					debug( "Q1 : right top" );
+					log.debug( "Q1 : right top" );
 				} else if ( params.y < params.angle_y ) {
 					// to bottom
-					debug( "Q1 : right bottom" );
+					log.debug( "Q1 : right bottom" );
 				}
 			} else if ( params.angle_x < params.x ) {
 				// to left
 				if ( params.y > params.angle_y ) {
 					// top
-					debug( "Q4 : left top" );
+					log.debug( "Q4 : left top" );
 				} else if ( params.y < params.angle_y ) {
 					// to bottom
-					debug( "Q3 : left bottom" );
+					log.debug( "Q3 : left bottom" );
 				}
 			}
 
@@ -236,15 +237,15 @@ function draw_new_elements ( params ) {
 			// not when it is to the right.
 			rotate_degrees -= 90; 
 
-			debug( "rotate_radians: "+rotate_radians );
-			debug( "rotate_degrees: "+rotate_degrees );
+			log.debug( "rotate_radians: "+rotate_radians );
+			log.debug( "rotate_degrees: "+rotate_degrees );
 
 			$.each( new_e_list, function( index ) {
 				new_e_list[ index ].rotate( rotate_degrees );
 			} );
 
 		} else {
-			debug( "no rotate_angle" );
+			log.debug( "no rotate_angle" );
 		}
 
 		if ( blur_amount != "" && blur_amount > 0 ) {
@@ -258,7 +259,7 @@ function draw_new_elements ( params ) {
 
 		return new_e_list;
 	} else {
-		debug( "svg_e not defined" );
+		log.debug( "svg_e not defined" );
 	}
 	
 
@@ -266,7 +267,109 @@ function draw_new_elements ( params ) {
 }
 
 
-var svg_paint = {
+
+let svg_paint_ui = {
+
+	remove_e_list : function ( e_list_to_remove ) {
+
+		$.each( e_list_to_remove, function( index ) {
+			e_list_to_remove[ index ].remove();
+		} );
+		return [];
+	},
+
+
+	/* 
+
+	load text from SVG files into data structures
+
+	   current supported: 
+	    - read text from: svg.g.path:first.d 
+	
+	*/
+	init_from_config : function () {
+		var self = this;
+
+		// search for paths
+		$.ajax( {
+			method: "get",
+			url: "config.json",
+			dataType: "JSON",
+			success: function ( data, text_status, jq_xhr ) {
+				log.debug( "config data: " );
+				log.debug( data );
+	
+				svg_config = data;
+	
+				if ( svg_config.shapes !== undefined ) {
+					if ( svg_config.shapes.paths !== undefined ) {
+						$.each( svg_config.shapes.paths, function ( index ) {
+							var shape_data 	= svg_config.shapes.paths[ index ];
+							var shape_key 	= shape_data.key;
+							var shape_name 	= shape_data.name;
+							var shape_is_default 	= false;
+							if ( shape_data.default !== undefined ) {
+								shape_is_default = shape_data.default;
+							}
+							log.debug( "shapes.paths["+index+"] shape key ["+shape_key+"] name ["+shape_name+"]" );
+							self.load_svg_path_data( 
+								shape_key, 
+								shape_name, 
+								shape_is_default, 
+								"shapes/paths/"+shape_key+".svg"  // shape file URL
+							);
+						} );
+					}
+				}
+	
+			},
+		} );
+	
+	},
+
+
+	load_svg_path_data : function ( shape_key, shape_name, shape_is_default, file_url ) {
+	
+		log.debug( "get shape ["+shape_key+"] url: "+file_url );
+		$.ajax( {
+			method: "get",
+			url: file_url,
+			dataType: "xml",
+			success: function ( svg_xml_doc, text_status, jq_xhr ) {
+				let $xml_doc = $( svg_xml_doc );
+				log.debug( "svg xml doc: " );
+				log.debug( svg_xml_doc );
+				let $paths = $xml_doc.find("svg").find("path");
+	
+				tool_shape_paths[ shape_key ] = $paths;
+	
+				log.debug( "loaded shape key ["+shape_key+"] name ["+shape_name+"] svg file paths: " );
+				log.debug( $paths );
+	
+				let $new_option = $( '<option/>', { 
+	        value: shape_key,
+	        text : shape_name 
+				} );
+	
+				// add new option to select list with id "draw-type"
+				$( "select#draw-type" ).append( $new_option );
+	
+				if ( shape_is_default ) {
+					// make this shape active
+					$( "select#draw-type" ).val( shape_key ).trigger( "change" ); 
+				}
+	
+			},
+		} );
+	
+	
+	},
+
+};
+
+
+
+let svg_paint_events = {
 
 	mouse_is_down : false,
 	mouse_was_moved : false,
@@ -354,7 +457,7 @@ var svg_paint = {
 				if ( this.last_mousemove_new_e_list !== null && this.last_mousemove_new_e_list !== undefined ) {
 					// remove last drawn point before drawing new point
 
-					this.last_mousemove_new_e_list = remove_e_list( this.last_mousemove_new_e_list );
+					this.last_mousemove_new_e_list = svg_paint_ui.remove_e_list( this.last_mousemove_new_e_list );
 				}
 
 				this.last_mousemove_new_e_list = draw_new_elements( { 
@@ -392,8 +495,8 @@ var svg_paint = {
 				//   - draw final shape on mouse up
 
 
-				var delta_x = this.up_x - this.down_x;
-				var delta_y = this.up_y - this.down_y;
+				let delta_x = this.up_x - this.down_x;
+				let delta_y = this.up_y - this.down_y;
 
 				if ( delta_x < 0 ) {
 					delta_x = delta_x * -1;
@@ -410,7 +513,7 @@ var svg_paint = {
 				if ( this.last_mousemove_new_e_list !== null && this.last_mousemove_new_e_list !== undefined ) {
 
 					// remove last drawn elements before drawing new elements
-					this.last_mousemove_new_e_list = remove_e_list( this.last_mousemove_new_e_list );
+					this.last_mousemove_new_e_list = svg_paint_ui.remove_e_list( this.last_mousemove_new_e_list );
 				}
 
 
@@ -429,7 +532,11 @@ var svg_paint = {
 	},
 
 
+
+
+
 };
+
 
 
 
@@ -437,41 +544,40 @@ var svg_paint = {
 
 function init_svg_paint () {
 
-	var $container = $( "#svg-container" );
+	let $container = $( "#svg-container" );
 
-	var container_position = $container.position();
+	let container_position = $container.position();
 
-	var $toolbar = $( ".svg-paint-toolbar" );
+	let $toolbar = $( ".svg-paint-toolbar" );
 
-	var container_width  = $container.width();
- 	var container_height = window.innerHeight - ( $toolbar.height() ) - 16;
+	let container_width  = $container.width();
+ 	let container_height = window.innerHeight - ( $toolbar.height() ) - 16;
 
 	draw = SVG('svg-container').size( container_width, container_height );
 
 	$( "#menu-panel div.contents" ).attr( "height", container_height+"px" );
 
-	var container_x = container_position.left;
-	var container_y = container_position.top;
+	let container_x = container_position.left;
+	let container_y = container_position.top;
 
 
-	$( "#svg-container" ).mousedown( function ( event ) {
-		svg_paint.mousedown( event );
+	$( "#svg-container" ).on( "vmousedown", function ( event ) {
+		svg_paint_events.mousedown( event );
 	} );
 
-	$( "#svg-container" ).mousemove( function ( event ) {
-		svg_paint.mousemove( event );
+	$( "#svg-container" ).on( "mousemove", function ( event ) {
+		svg_paint_events.mousemove( event );
 	} );
 
-
-	$( "#svg-container" ).mouseup( function ( event ) {
-		svg_paint.mouseup( event );
+	$( "#svg-container" ).on( "mouseup", function ( event ) {
+		svg_paint_events.mouseup( event );
 	} );
 
 
 	$( "#draw-mode" ).change( function ( event ) {
-		var value = $( this ).val();
+		let value = $( this ).val();
 
-		var target_id = "draw-size-wrap";
+		let target_id = "draw-size-wrap";
 		if ( value == "trail" ) {
 				$( "#"+target_id ).show();
 		} else {
@@ -481,105 +587,12 @@ function init_svg_paint () {
 	} );
 
 
-	init_from_config();
-
-}
-
-
-function remove_e_list ( e_list_to_remove ) {
-
-	$.each( e_list_to_remove, function( index ) {
-		e_list_to_remove[ index ].remove();
-	} );
-	return [];
-}
-
-
-/* 
-
-load text from SVG files into data structures
-
-   current supported: 
-    - read text from: svg.g.path:first.d 
-
-*/
-function init_from_config () {
-
-	// search for paths
-	$.ajax( {
-		method: "get",
-		url: "config.json",
-		dataType: "JSON",
-		success: function ( data, text_status, jq_xhr ) {
-			debug( "config data: " );
-			debug( data );
-
-			svg_config = data;
-
-			if ( svg_config.shapes !== undefined ) {
-				if ( svg_config.shapes.paths !== undefined ) {
-					$.each( svg_config.shapes.paths, function ( index ) {
-						var shape_data 	= svg_config.shapes.paths[ index ];
-						var shape_key 	= shape_data.key;
-						var shape_name 	= shape_data.name;
-						var shape_is_default 	= false;
-						if ( shape_data.default !== undefined ) {
-							shape_is_default = shape_data.default;
-						}
-						debug( "shapes.paths["+index+"] shape key ["+shape_key+"] name ["+shape_name+"]" );
-						load_svg_path_data( 
-							shape_key, 
-							shape_name, 
-							shape_is_default, 
-							"shapes/paths/"+shape_key+".svg"  // shape file URL
-						);
-					} );
-				}
-			}
-
-		},
-	} );
+	svg_paint_ui.init_from_config();
 
 }
 
 
 
-function load_svg_path_data ( shape_key, shape_name, shape_is_default, file_url ) {
-
-	debug( "get shape ["+shape_key+"] url: "+file_url );
-	$.ajax( {
-		method: "get",
-		url: file_url,
-		dataType: "xml",
-		success: function ( svg_xml_doc, text_status, jq_xhr ) {
-			var $xml_doc = $( svg_xml_doc );
-			debug( "svg xml doc: " );
-			debug( svg_xml_doc );
-			var $paths = $xml_doc.find("svg").find("path");
-
-			tool_shape_paths[ shape_key ] = $paths;
-
-			debug( "loaded shape key ["+shape_key+"] name ["+shape_name+"] svg file paths: " );
-			debug( $paths );
-
-			var $new_option = $( '<option/>', { 
-        value: shape_key,
-        text : shape_name 
-			} );
-
-			// add new option to select list with id "draw-type"
-			$( "select#draw-type" ).append( $new_option );
-
-			if ( shape_is_default ) {
-				// make this shape active
-				$( "select#draw-type" ).val( shape_key ).trigger( "change" ); 
-			}
-
-		},
-	} );
-
-
-}
 
 
 
