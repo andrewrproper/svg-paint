@@ -1,5 +1,5 @@
 
-# SVG Paint Experiment
+# SVG Paint
 
 Copyright 2019 Andrew R. Proper.
 
