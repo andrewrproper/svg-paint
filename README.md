@@ -5,7 +5,7 @@ Copyright 2019 Andrew R. Proper.
 
 ## Try Online
 
-https://andrewrproper.github.io/svg-paint-experiment/
+https://andrewrproper.github.io/svg-paint/
 
 ## Adding Shapes
 
