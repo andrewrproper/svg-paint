@@ -7,11 +7,8 @@ Copyright 2019 Andrew R. Proper.
 
 https://andrewrproper.github.io/svg-paint/
 
-## Adding Shapes
+## More Information
 
-Each shape should be on a page 200 x 200 px. 
+See: [https://andrewrproper.github.io/software/svg-paint/](https://andrewrproper.github.io/software/svg-paint/)
 
-If creating in Inkscape, export as simple SVG.
-
-Save under `shapes/paths/*.svg`, and add to config file `config.json`.
 
